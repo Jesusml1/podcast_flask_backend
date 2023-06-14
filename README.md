@@ -1,15 +1,15 @@
 # README
 
 ### Para crear el entorno virtual
-#### windows
+windows
 `python3 -m venv .venv`
-#### mac/linux
+mac/linux
 `py -3 -m venv .venv`
 
 ### Para activar el entorno virtual
-#### windows
+windows
 `.venv\Scripts\activate`
-#### mac/linux
+mac/linux
 `. .venv/bin/activate`
 
 ### Para instalar las dependencias 
@@ -19,3 +19,4 @@
 `flask --app app run`
 
 ## Desplegado en
+https://podcast-flask-backend.onrender.com
