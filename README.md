@@ -2,9 +2,10 @@
 
 ### Para crear el entorno virtual
 #### windows
-`python3 -m venv .venv`
-#### mac/linux
 `py -3 -m venv .venv`
+#### mac/linux
+`python3 -m venv .venv`
+
 
 ### Para activar el entorno virtual
 #### windows
