@@ -16,8 +16,8 @@ def dashboard():
 
 app.secret_key = secrets.token_urlsafe(16)
 #datos
-client_id = 'cdc86d5fd1044af09f8816e0ac9b0787'
-client_secret = '28c8b7bcd5ff49699b595ed8ae736fde'
+client_id = ''
+client_secret = ''
 redirect_uri2 = 'http://127.0.0.1:5000/welcome'
 scope = 'user-read-private user-read-email'
 authorization_base_url = 'https://accounts.spotify.com/authorize'
