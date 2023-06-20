@@ -17,7 +17,7 @@
 `pip install -r requirements`
 
 ### Para correr servidor local de flask
-`flask --app app run`
+`flask --app app run --debug`
 
 ## Desplegado en
 https://podcast-flask-backend.onrender.com
