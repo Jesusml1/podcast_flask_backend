@@ -1,69 +1,103 @@
-from flask import Flask, jsonify, redirect, request, session
-from requests_oauthlib import OAuth2Session
-import secrets
-import string
-import hashlib
-import base64
+from flask import Flask, request, url_for, session, redirect, make_response, jsonify
+import time
+import spotipy
+from spotipy.oauth2 import SpotifyOAuth
+from spotipy.oauth2 import SpotifyClientCredentials
+#import os
+
+#traer variables de entorno de render
+#client_id = os.environ.get('CLIENT_ID')
+#client_secret = os.environ.get('SECRET')
 
 app = Flask(__name__)
 
-if __name__ == 'main':
-    app.run(debug=True, port=5000)
+app.config['SESSION_COOKIE_NAME'] = 'Spotify Cookie'
+app.secret_key = 'spotifyappmariiacao'
+TOKEN_INFO = 'token_info'
+
+#endpoint para autenticar al usuario y pedir autorizacion
+@app.route("/auth")
+def auth():
+    auth_url = create_spotify_oauth().get_authorize_url()
+    return redirect(auth_url)
+
+#endpoint de redireccion despues de recibir autorizacion y que hace la peticion del token
+@app.route("/redirect")
+def redirect_page():
+    session.clear()
+    code = request.args.get('code')
+    token_info = create_spotify_oauth().get_access_token(code)
+    session[TOKEN_INFO] = token_info
+    return redirect(url_for('save_user_info', _external = True))
+    
+#despues de autorizar redirige a inicio (se puede eliminar)
+@app.route("/saveUserInfo")
+def save_user_info():
+    
+    return redirect('/')
+
+#obtener todos los podcast de un usuario
+@app.route("/get-user-podcasts")
+def  get_user_podcasts():
+    
+    sp = get_spotify_authorization()
+    podcasts = sp.current_user_saved_shows()
+
+    response = build_response(podcasts, 200)
+
+    return response;
+
+#obtener los episodios de un podcast
+@app.route("/get-episodes-podcast", methods=['POST'])
+def  get_episodes():
+        data = request.get_json()
+        podcast_id  = data.get('id')
+        sp = get_spotify_authorization()
+        episodes = sp.show_episodes(podcast_id)
+        response = build_response(episodes, 200)
+
+        return response
+
+#obtener token y actualizarlo
+def get_token():
+    token_info = session.get(TOKEN_INFO,None)
+    if not token_info:
+        redirect(url_for('login', external=False))
+    now = int(time.time())
+    is_expired = token_info['expires_at'] -now < 60
+    if(is_expired):
+        spotify_oauth = create_spotify_oauth()
+        token_info = spotify_oauth.refresh_access_token(token_info['refresh_token'])
+
+    return token_info
 
 @app.route("/")
-def dashboard():
-    return jsonify({"message": "dashboard"})
+def hello_world():
+    return "<p>Dashboard</p>"
 
-app.secret_key = secrets.token_urlsafe(16)
-#datos
-client_id = ''
-client_secret = ''
-redirect_uri2 = 'http://127.0.0.1:5000/welcome'
-scope = 'user-read-private user-read-email'
-authorization_base_url = 'https://accounts.spotify.com/authorize'
-token_url = 'https://accounts.spotify.com/api/token'
-redirect_uri = 'https://localhost:5000/callback'
-toke_spotify = ''
+#construir la url autorization de spotify
+def create_spotify_oauth():
+    return SpotifyOAuth(
+        client_id = 'cdc86d5fd1044af09f8816e0ac9b0787',
+        client_secret = '28c8b7bcd5ff49699b595ed8ae736fde',
+        redirect_uri = url_for('redirect_page', _external= True),
+        scope = 'user-read-private user-read-email playlist-modify-public playlist-read-private'
+    )
 
-
-@app.route("/login")
-def login():
+#obtener credenciales de autorizacion de spotify
+def get_spotify_authorization():
+    try:
+        token_info = get_token()
+    except:
+        return redirect('/auth')
     
-    spotify = OAuth2Session(client_id, redirect_uri=redirect_uri, scope=['user-read-private' ,'user-read-email'])
-    #code verifier y code challenge
-    pkce = create_pkce_verifier_and_challenge()
-    session['state'] = ''.join(secrets.choice(string.ascii_uppercase + string.digits) for _ in range(16))
-    authorization_url, _ = spotify.authorization_url(authorization_base_url, code_challenge=pkce['challenge'], code_challenge_method='S256', state=session['state'])
-    session['pkce'] = pkce
-    return redirect(authorization_url)
+    return spotipy.Spotify(auth=token_info["access_token"])
 
-    #spotify = OAuth2Session(client_id, redirect_uri=redirect_uri)
-    #authorization_url, state = spotify.authorization_url(authorization_base_url)
-    #return redirect(authorization_url)
-    #return jsonify({"message": "login"})
+#construir respuestas del endpoint
+def build_response(data, status):
+    json_response = jsonify(data)
+    response = make_response(json_response)
+    response.status = status
+    return response
 
-@app.route('/callback')
-def callback():
-    spotify = OAuth2Session(client_id, redirect_uri=redirect_uri2, state=session['state'])
-    token = spotify.fetch_token(token_url, client_secret=client_secret, authorization_response=request.url, code_verifier=session['pkce']['verifier'])
-    token_spotify = 'Token: ' + str(token)
-    return toke_spotify
-
-def create_pkce_verifier_and_challenge():
-    #creando un code verifier acorde al standar PKCE
-    verifier = base64.urlsafe_b64encode(secrets.token_bytes(32)).rstrip(b'=').decode('ascii')
-    #generate code challenge
-    challenge = hashlib.sha256(verifier.encode('ascii')).digest()
-    challenge = base64.urlsafe_b64encode(challenge).rstrip(b'=').decode('ascii')
-    return {'verifier': verifier, 'challenge': challenge}
-
-@app.route("/upload/<varname>", methods=['POST'])
-def uploadPodcast():
-    return jsonify({"message": "login"})
-
-@app.route("/welcome")
-def welcome():
-    return jsonify({"message": "welcome!"})
-# @app.route("/")
-# def hello_world():
-#     return "Hello, World!"
+app.run(debug=True)
