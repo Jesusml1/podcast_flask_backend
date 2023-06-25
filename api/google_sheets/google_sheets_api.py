@@ -7,7 +7,7 @@ google_sheets_bp = Blueprint('google_sheets', __name__)
 
 #funcion para abrir la hoja
 def open_spreadsheet():
-    client = gspread.service_account(filename=settings.CREDENTIALS)
+    client = gspread.service_account_from_dict(settings.CREDENTIALS)
     sheet = client.open("podcast-2023").sheet1
     return sheet
 
