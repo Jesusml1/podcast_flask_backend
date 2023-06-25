@@ -1,67 +1,5 @@
-
-from flask import Flask, request, url_for, session, redirect, make_response, jsonify, render_template, flash
-import time
-import spotipy
-from spotipy.oauth2 import SpotifyOAuth
-from dotenv import load_dotenv
-import os
+from flask import Flask, request, url_for, session, make_response, jsonify, render_template, flash
 import gspread
-import api.spotify as spotifyAPI
-
-app = Flask(__name__)
-
-if __name__ == '__main__':
-    app.run()
-
-# --- spotify
-
-app.config['SESSION_COOKIE_NAME'] = 'Spotify Cookie'
-app.secret_key = 'spotifyappmariiacao'
-TOKEN_INFO = 'token_info'
-
-#endpoint para autenticar al usuario y pedir autorizacion
-@app.route("/auth")
-def auth():
-    auth_url = spotifyAPI.auth()
-
-    return redirect(auth_url)
-
-#solicita y guarda el token en la sesion y redirige al dashboard
-@app.route("/redirect")
-def redirect_page():
-   
-    code = request.args.get('code')
-    spotifyAPI.request_token(code)
-
-    return redirect(url_for('dashboard', _external = True))
-    
-#obtener todos los podcast de un usuario
-@app.route("/get-user-podcasts")
-def  get_user_podcasts():
-    response = spotifyAPI.get_user_podcasts()
-
-    return response
-
-#obtener los episodios de un podcast
-@app.route("/get-episodes-podcast", methods=['POST'])
-def  get_episodes():
-        
-    data = request.get_json()
-    podcast_id  = data.get('id')
-    response = spotifyAPI.get_episodes_podcast(podcast_id)
-
-    return response
-
-@app.route("/")
-def dashboard():
-    return "<p>Dashboard</p>"
-
-@app.route('/logout')
-def logout():
-    session.clear()
-    return ('sesión finalizada')
-
-# --- google sheets
 
 #funcion para abrir la hoja
 def open_spreadsheet():
@@ -167,6 +105,3 @@ def form_delete_user():
             else:
                 return jsonify({"message": "error"}), 400
     return jsonify({"message": "Usuario eliminado"}), 200
-
-
-
