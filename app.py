@@ -47,7 +47,7 @@ def  get_user_podcasts():
 
     response = build_response(podcasts, 200)
 
-    return response;
+    return response
 
 #obtener los episodios de un podcast
 @app.route("/get-episodes-podcast", methods=['POST'])
@@ -80,8 +80,8 @@ def hello_world():
 #construir la url autorization de spotify
 def create_spotify_oauth():
     return SpotifyOAuth(
-        client_id = client_id,
-        client_secret = client_secret,
+        client_id = 'cdc86d5fd1044af09f8816e0ac9b0787',
+        client_secret = '28c8b7bcd5ff49699b595ed8ae736fde',
         redirect_uri = url_for('redirect_page', _external= True),
         scope = 'user-read-private user-read-email playlist-modify-public playlist-read-private'
     )
