@@ -2,14 +2,15 @@ from flask import Flask, request, url_for, session, redirect, make_response, jso
 import time
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
-from spotipy.oauth2 import SpotifyClientCredentials
-#import os
+from dotenv import load_dotenv
+load_dotenv()
+import os
 
 #traer variables de entorno de render
 #client_id = os.environ.get('CLIENT_ID')
 #client_secret = os.environ.get('SECRET')
-client_id = 'cdc86d5fd1044af09f8816e0ac9b0787',
-client_secret = '28c8b7bcd5ff49699b595ed8ae736fde',
+client_id = os.getenv('CLIENT_ID')
+client_secret = os.getenv('CLIENT_SECRET')
 
 app = Flask(__name__)
 
@@ -80,8 +81,8 @@ def hello_world():
 #construir la url autorization de spotify
 def create_spotify_oauth():
     return SpotifyOAuth(
-        client_id = 'cdc86d5fd1044af09f8816e0ac9b0787',
-        client_secret = '28c8b7bcd5ff49699b595ed8ae736fde',
+        client_id = client_id,
+        client_secret = client_secret,
         redirect_uri = url_for('redirect_page', _external= True),
         scope = 'user-read-private user-read-email playlist-modify-public playlist-read-private'
     )
