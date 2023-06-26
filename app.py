@@ -6,7 +6,7 @@ from spotipy.oauth2 import SpotifyOAuth
 from dotenv import load_dotenv
 import os
 import gspread
-import api.spotify as spotifyAPI
+import api.spotify.spotify as spotifyAPI
 
 app = Flask(__name__)
 
@@ -14,10 +14,6 @@ if __name__ == '__main__':
     app.run()
 
 # --- spotify
-
-app.config['SESSION_COOKIE_NAME'] = 'Spotify Cookie'
-app.secret_key = 'spotifyappmariiacao'
-TOKEN_INFO = 'token_info'
 
 #endpoint para autenticar al usuario y pedir autorizacion
 @app.route("/auth")
