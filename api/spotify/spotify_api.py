@@ -1,11 +1,14 @@
 from flask import Flask, request, url_for, session, redirect, make_response, jsonify, Blueprint
 import time
 import spotipy
-from spotipy.oauth2 import SpotifyOAuth
+from spotipy.oauth2 import SpotifyOAuth, SpotifyClientCredentials
 from dotenv import load_dotenv
 load_dotenv()
 import os
 
+
+frontend_url = os.getenv('FRONTEND_URL')
+scope = 'user-read-private user-read-email playlist-modify-public playlist-read-private'
 spotify_bp = Blueprint('spotify', __name__)
 
 #traer variables de entorno de render
@@ -26,6 +29,20 @@ def auth():
     auth_url = create_spotify_oauth().get_authorize_url()
     return redirect(auth_url)
 
+@spotify_bp.route("/auth/me")
+def me():
+    auth_manager = SpotifyClientCredentials()
+    sp = spotipy.Spotify(auth_manager=auth_manager)
+    current_user = sp.current_user()
+    return jsonify({"user": current_user})
+
+@spotify_bp.route("/auth/refresh")
+def refresh_token():
+    # auth_manager = SpotifyClientCredentials()
+    # sp = spotipy.Spotify(auth_manager=auth_manager)
+    res = SpotifyOAuth.refresh_access_token()
+    return jsonify({"res": res})
+
 #endpoint de redireccion despues de recibir autorizacion y que hace la peticion del token
 @spotify_bp.route("/redirect")
 def redirect_page():
@@ -33,9 +50,10 @@ def redirect_page():
     code = request.args.get('code')
     token_info = create_spotify_oauth().get_access_token(code)
     session[TOKEN_INFO] = token_info
-    access_token = token_info['access_token']
+    refresh_token = token_info['refresh_token']
 
-    return redirect(f'http://localhost:5173?t={access_token }')
+    frontend_redirect_url = f'{frontend_url}?t={refresh_token}'
+    return redirect(frontend_redirect_url )
     # return redirect(url_for('spotify.save_user_info', _external = True))
     
 #despues de autorizar redirige a inicio (se puede eliminar)
@@ -88,8 +106,8 @@ def create_spotify_oauth():
     return SpotifyOAuth(
         # client_id = client_id,
         # client_secret = client_secret,
-        redirect_uri = url_for('spotify.redirect_page', _external= True),
-        scope = 'user-read-private user-read-email playlist-modify-public playlist-read-private'
+        # redirect_uri = url_for('spotify.redirect_page', _external= True),
+        scope = scope
     )
 
 #obtener credenciales de autorizacion de spotify
