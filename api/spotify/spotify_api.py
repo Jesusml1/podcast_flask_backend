@@ -60,7 +60,7 @@ def  get_user_podcasts():
 @spotify_bp.route("/get-episodes-podcast", methods=['POST'])
 def  get_episodes():
         data = request.get_json()
-        podcast_id  = data.get('id')
+        podcast_id  = data.get('podcast_id')
         token =  data.get('token')
         expiration = data.get('token_expiration')
         sp = get_spotify_authorization(token, expiration)
@@ -69,12 +69,12 @@ def  get_episodes():
 
         return response
 
-@spotify_bp.route("/refresh")
+@spotify_bp.route("/refresh", methods=['POST'])
 def refresh():
-    token = request.args.get('token')
+    token = request.args.get('refresh_token')
     spotify_oauth = create_spotify_oauth()
     token_info = spotify_oauth.refresh_access_token(token)
-    return build_response({'token': token_info['refresh_token'], 'expiration':token_info['expires_at']}, 200)
+    return build_response({'token': token_info['access_token'],'refresh_token': token_info['refresh_token'], 'expiration':token_info['expires_at']}, 200)
 
 def validate_token(token, expiration):
     now = int(time.time())
@@ -100,7 +100,6 @@ def get_spotify_authorization(token, expiration):
         return build_response({'token_expired':True,'message':'token expirado por favor refresque el token para realizar la solicitud'}, 400)
     
     return spotipy.Spotify(auth=token)
-    #return spotipy.Spotify(auth=token_info["access_token"])
 
 #construir respuestas del endpoint
 def build_response(data, status):
