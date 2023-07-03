@@ -19,10 +19,10 @@
 ### Para correr servidor local de flask
 `flask --app app run`
 
-## Desplegado en
+## 🌐 Desplegado en
 https://podcast-flask-backend.onrender.com
 
-# API endpoints
+# 🛎️ API endpoints
 
 ## Spotify
 
@@ -38,35 +38,31 @@ ___
 ### GET /get-user-podcasts
 Devuelve los podcasts del usuario autenticado.
 
-**Parameters**
+**Parametros**
 
 |          Name | Required |  Type   | Description                                                                                                                                                           |
-| -------------:|:--------:|:-------:| --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| -------------:|:--------:|:-------:| ------------
 |     `token` | required | string  | access token spotify.  
---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 |     `token_expiration` | required | string  | expiration token.  
 
 ### POST /get-episodes-podcast
 Devuelve los episodios del podcast solicitado
 
-**Parameters**
+**Parametros**
 
 |          Name | Required |  Type   | Description                                                                                                                                                           |
-| -------------:|:--------:|:-------:| --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-|     `podcast_id` | required | string  | podcast id.                                                                                                                         |
---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-|     `token` | required | string  | access token spotify.  
---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| -------------:|:--------:|:-------:| ----------- |
+|     `podcast_id` | required | string  | podcast id.          |
+|     `token` | required | string  | access token spotify.
 |     `token_expiration` | required | string  | token expiration. 
 
 ### POST /refresh
-Refrescar el access tokoen de spotify
-**Parameters**
+Refrescar el access token de spotify
+
+**Parametros**
 
 |          Name | Required |  Type   | Description                                                                                                                                                           |
 | -------------:|:--------:|:-------:| --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-|     `podcast_id` | required | string  | podcast id.                                                                                                                         |
---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|     `podcast_id` | required | string  | podcast id.       |
 |     `token` | required | string  | access token spotify.  
---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 |     `token_expiration` | required | string  | token expiration. 
