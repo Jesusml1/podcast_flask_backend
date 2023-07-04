@@ -66,3 +66,30 @@ Refrescar el access token de spotify
 |     `podcast_id` | required | string  | podcast id.       |
 |     `token` | required | string  | access token spotify.  
 |     `token_expiration` | required | string  | token expiration. 
+
+## Google sheets
+
+- ## GET
+`Obtener todos los usuarios registrados en la hoja de google sheets`[/get_users](#get_users) </br>
+
+- ## POST
+`Enviar datos del usuario registrado a la hoja de google sheets`[/create_user](#create_user) </br>
+____
+
+- ### GET /get_users
+Devuelve todos los usuarios registrados en la hoja de google sheets y sus datos
+
+**Parametros**
+
+#### No contiene parametros
+
+- ### POST /create_user
+Devuelve el usuario recién registrado en la hoja de google sheets y sus datos
+
+**Parametros**
+
+| Name | Required | Type | Description |
+|------:|--------:|-----:|------------:|
+| `name` | required | string | user name |
+| `email` | required | string | user email |
+| `phone` | required | string | user phone |
