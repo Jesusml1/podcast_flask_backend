@@ -27,15 +27,15 @@ https://podcast-flask-backend.onrender.com
 ## Spotify
 
 
-## GET
+- ## GET
 `obtener los podcast del usuario` [/get-user-podcasts](#get-user-podcasts) <br/>
 
-## POST
+- ## POST
 `obtener los episodios del podcast del usuario` [/get-episodes-podcast](#get-episodes-podcast) <br/>
 `refrescar el access token` [/refresh](#refresh) <br/>
 ___
 
-### GET /get-user-podcasts
+- ### GET /get-user-podcasts
 Devuelve los podcasts del usuario autenticado.
 
 **Parametros**
@@ -45,7 +45,7 @@ Devuelve los podcasts del usuario autenticado.
 |     `token` | required | string  | access token spotify.  
 |     `token_expiration` | required | string  | expiration token.  
 
-### POST /get-episodes-podcast
+- ### POST /get-episodes-podcast
 Devuelve los episodios del podcast solicitado
 
 **Parametros**
