@@ -27,10 +27,10 @@ https://podcast-flask-backend.onrender.com
 ## Spotify
 
 
-- <span style="font-size:larger;">•</span> ## GET
+## GET
 `obtener los podcast del usuario` [/get-user-podcasts](#get-user-podcasts) <br/>
 
-- <span style="font-size:larger;">•</span> ## POST
+## POST
 `obtener los episodios del podcast del usuario` [/get-episodes-podcast](#get-episodes-podcast) <br/>
 `refrescar el access token` [/refresh](#refresh) <br/>
 ___
