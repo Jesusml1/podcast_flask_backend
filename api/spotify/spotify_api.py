@@ -86,6 +86,9 @@ def validate_token(token, expiration):
 #construir la url autorization de spotify
 def create_spotify_oauth():
     return SpotifyOAuth(
+        client_id = client_id,
+        client_secret = client_secret,
+        redirect_uri = url_for('spotify.redirect_page', _external= True),
         scope = scope
     )
 
