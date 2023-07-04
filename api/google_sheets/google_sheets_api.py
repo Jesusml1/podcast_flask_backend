@@ -60,6 +60,7 @@ def create_user():
         else:
             name = request.form['name']
             email = request.form['email']
+            phone = request.form['phone']
             if name and email and phone:
                send_user_new(name, email, phone)
             else:
