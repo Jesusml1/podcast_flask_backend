@@ -41,7 +41,7 @@ def redirect_page():
     expiration_token = token_info['expires_at']
     access_token = token_info['access_token']
 
-    frontend_redirect_url = f'{frontend_url}?at={access_token}rt={refresh_token}&t_exp={expiration_token}'
+    frontend_redirect_url = f'{frontend_url}?at={access_token}&rt={refresh_token}&t_exp={expiration_token}'
     return redirect(frontend_redirect_url)
     
 #obtener todos los podcast de un usuario
