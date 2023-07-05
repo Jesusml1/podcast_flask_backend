@@ -28,12 +28,16 @@ https://podcast-flask-backend.onrender.com
 
 
 ## GET
+`solicitar autorización del usuario para obtener información de su cuenta de spotify` [/auth](#auth) <br/>
 `obtener los podcast del usuario` [/get-user-podcasts](#get-user-podcasts) <br/>
+
 
 ## POST
 `obtener los episodios del podcast del usuario` [/get-episodes-podcast](#get-episodes-podcast) <br/>
-`refrescar el access token` [/refresh](#refresh) <br/>
 ___
+
+### GET /auth
+Refrescar el access token de spotify
 
 ### GET /get-user-podcasts
 Devuelve los podcasts del usuario autenticado.
@@ -42,8 +46,8 @@ Devuelve los podcasts del usuario autenticado.
 
 |          Name | Required |  Type   | Description                                                                                                                                                           |
 | -------------:|:--------:|:-------:| ------------
-|     `token` | required | string  | access token spotify.  
-|     `token_expiration` | required | string  | expiration token.  
+|     `id` | required | string  | user_id.  
+
 
 ### POST /get-episodes-podcast
 Devuelve los episodios del podcast solicitado
@@ -52,17 +56,5 @@ Devuelve los episodios del podcast solicitado
 
 |          Name | Required |  Type   | Description                                                                                                                                                           |
 | -------------:|:--------:|:-------:| ----------- |
-|     `podcast_id` | required | string  | podcast id.          |
-|     `token` | required | string  | access token spotify.
-|     `token_expiration` | required | string  | token expiration. 
-
-### POST /refresh
-Refrescar el access token de spotify
-
-**Parametros**
-
-|          Name | Required |  Type   | Description                                                                                                                                                           |
-| -------------:|:--------:|:-------:| --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-|     `podcast_id` | required | string  | podcast id.       |
-|     `token` | required | string  | access token spotify.  
-|     `token_expiration` | required | string  | token expiration. 
+|     `id` | required | string  | user id.          |
+|     `podcast_id` | required | string  | access token spotify.

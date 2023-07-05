@@ -1,6 +1,7 @@
 import gspread
 from flask import Blueprint, request, jsonify
 from settings import settings
+import json
 
 
 google_sheets_bp = Blueprint('google_sheets', __name__)
@@ -109,3 +110,44 @@ def form_delete_user():
             else:
                 return jsonify({"message": "error"}), 400
     return jsonify({"message": "Usuario eliminado"}), 200
+
+#verificar que existe el usuario
+def find_user(email):
+    sheet = open_spreadsheet()
+    cell = sheet.find(email)
+    if hasattr(cell, "row"):
+        return True
+    else:
+        return False
+
+#obtener la fila donde esta el registro del usuario    
+def get_user_info_row(data):
+    sheet = open_spreadsheet()
+    cell = sheet.find(data)
+    return cell.row
+
+#obtener el id unico del usuario
+def get_user_id(email):
+    sheet = open_spreadsheet()
+    row = get_user_info_row(email)
+    id_usuario = sheet.cell(row, 4).value
+    return id_usuario
+
+#obtener la informacion del token de spotify del usuario por el id
+def get_token_by_user_id(user_id):
+    sheet = open_spreadsheet()
+    row = get_user_info_row(user_id)
+    access_token = sheet.cell(row, 5).value
+    expiration_token = sheet.cell(row, 6).value
+    refresh_token = sheet.cell(row, 7).value
+    return {"access_token": access_token, "expiration_token": expiration_token, "refresh_token": refresh_token}
+    
+#actualizar la informacion del token del usuario
+def insert_spotify_data(data, access_token, token_expiration, refresh_token):
+    row_user = get_user_info_row(data)
+    sheet = open_spreadsheet()
+    sheet.update(f"E{row_user}:G{row_user}", [[access_token, token_expiration, refresh_token]])
+
+#obtener el token del usuario
+def get_user_token(user_id):
+    return get_token_by_user_id(user_id)

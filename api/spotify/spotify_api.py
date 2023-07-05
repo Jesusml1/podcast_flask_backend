@@ -5,7 +5,7 @@ from spotipy.oauth2 import SpotifyOAuth, SpotifyClientCredentials
 from dotenv import load_dotenv
 load_dotenv()
 import os
-
+from api.google_sheets.google_sheets_api import find_user, insert_spotify_data, get_user_id, get_user_token
 
 frontend_url = os.getenv('FRONTEND_URL')
 scope = 'user-read-private user-read-email playlist-modify-public playlist-read-private'
@@ -34,54 +34,75 @@ def me():
 #endpoint de redireccion despues de recibir autorizacion y que hace la peticion del token
 @spotify_bp.route("/redirect")
 def redirect_page():
-    session.clear()
+
     code = request.args.get('code')
     token_info = create_spotify_oauth().get_access_token(code)
     refresh_token = token_info['refresh_token']
     expiration_token = token_info['expires_at']
     access_token = token_info['access_token']
+    token_info = {"access_token":access_token, "expiration_token": expiration_token, "refresh_token": refresh_token}
 
-    frontend_redirect_url = f'{frontend_url}?at={access_token}&rt={refresh_token}&t_exp={expiration_token}'
-    return redirect(frontend_redirect_url)
+    sp = get_spotify_authorization(token_info)
+    user_info = sp.current_user()
+    email_user = user_info["email"]
+
+    is_user_registered = find_user(email_user);
+    if is_user_registered == True:
+        insert_spotify_data(email_user, access_token, expiration_token, refresh_token)
+        user_id = get_user_id(email_user)
+        frontend_redirect_url = f'{frontend_url}?user={user_id}'
+        return redirect(frontend_redirect_url)
+    else:
+        return build_response({"error":True, "message": "Usuario no registrado"})
     
 #obtener todos los podcast de un usuario
 @spotify_bp.route("/get-user-podcasts")
 def  get_user_podcasts():
-    token = request.args.get('token')
-    expiration = request.args.get('token_expiration')
-    sp = get_spotify_authorization(token, expiration)
-    podcasts = sp.current_user_saved_shows()
+    user_id = request.args.get('id')
+    token_info = get_user_token(user_id)
 
-    response = build_response(podcasts, 200)
-
-    return response
+    if(user_id):
+        sp = get_spotify_authorization(token_info)
+        podcasts = sp.current_user_saved_shows()
+        response = build_response(podcasts, 200)
+        return response
+    else:
+        response = build_response({"error":True, "message": "El parámetro id es requerido"}, 400)
+        return response
 
 #obtener los episodios de un podcast
 @spotify_bp.route("/get-episodes-podcast", methods=['POST'])
 def  get_episodes():
         data = request.get_json()
-        podcast_id  = data.get('podcast_id')
-        token =  data.get('token')
-        expiration = data.get('token_expiration')
-        sp = get_spotify_authorization(token, expiration)
-        episodes = sp.show_episodes(podcast_id)
-        response = build_response(episodes, 200)
+        user_id =  data.get('id')
+        podcast_id = data.get('podcast_id')
+        
+        if(user_id and podcast_id):
+            token_info = get_user_token(user_id)
+            sp = get_spotify_authorization(token_info)
+            episodes = sp.show_episodes(podcast_id)
+            response = build_response(episodes, 200)
 
-        return response
+            return response
+        else:
+            response = build_response({"error":True, "message": "Los parametros id y podcast_id son requeridos"}, 400)
+            return response
 
-@spotify_bp.route("/refresh", methods=['POST'])
-def refresh():
-    token = request.args.get('refresh_token')
+#refrescar el token del usuario
+def refresh(token_info):
+    refresh_token = token_info['refresh_token']
     spotify_oauth = create_spotify_oauth()
-    token_info = spotify_oauth.refresh_access_token(token)
-    return build_response({'token': token_info['access_token'],'refresh_token': token_info['refresh_token'], 'expiration':token_info['expires_at']}, 200)
+    token_info = spotify_oauth.refresh_access_token(refresh_token)
+    insert_spotify_data(refresh_token,token_info['access_token'], token_info['expires_at'],token_info['refresh_token'])
+    return token_info
 
-def validate_token(token, expiration):
+#validar expiracion del token
+def validate_token(expiration):
     now = int(time.time())
     is_expired = int(expiration) -now < 60
     if(is_expired):
         return False
-    return token
+    return True
 
 #construir la url autorization de spotify
 def create_spotify_oauth():
@@ -92,14 +113,15 @@ def create_spotify_oauth():
         scope = scope
     )
 
-def get_spotify_authorization(token, expiration):
+#obtener la autorizacion de spotify
+def get_spotify_authorization(token_info):
 
-    token = validate_token(token, expiration)
+    valid_token = validate_token(token_info['expiration_token'])
 
-    if token == False:
-        return build_response({'token_expired':True,'message':'token expirado por favor refresque el token para realizar la solicitud'}, 400)
+    if valid_token == False:
+        token_info = refresh(token_info)
     
-    return spotipy.Spotify(auth=token)
+    return spotipy.Spotify(auth=token_info['access_token'])
 
 #construir respuestas del endpoint
 def build_response(data, status):
