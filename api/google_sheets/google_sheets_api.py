@@ -24,9 +24,9 @@ def confirm_user(old_name, old_email):
         return print("El usuario no existe")
 
 #funcion para crear usuario
-def send_user_new(name, email, phone):
+def send_user_new(name, email, phone, description=""):
     sheet = open_spreadsheet()
-    row = [name, email, phone]
+    row = [name, email, phone, description]
     sheet.append_row(row)
 
 #funcion para actualizar usuario
@@ -55,12 +55,13 @@ def create_user():
         name = request.args.get('name')
         email = request.args.get('email')
         phone = request.args.get('phone')
-        if name and email and phone:
-           send_user_new(name, email, phone)
+        description = request.args.get('description', '')
+        if name and email and phone and description:
+           send_user_new(name, email, phone, description)
         else:
-            name = request.form['name']
-            email = request.form['email']
-            phone = request.form['phone']
+            name = request.args.get('name')
+            email = request.args.get('email')
+            phone = request.args.get('phone')
             if name and email and phone:
                send_user_new(name, email, phone)
             else:
